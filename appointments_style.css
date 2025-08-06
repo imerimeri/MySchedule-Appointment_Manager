@@ -1,0 +1,129 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   
+    color: #333;
+    line-height: 1.6;
+    background-image: url('appointments_photo.png');
+}
+
+/* Container */
+.container {
+    max-width: 1000px;
+    margin: 50px auto;
+    padding: 30px;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  
+}
+
+/* Heading */
+h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #2c3e50;
+      margin-top: 50px;
+}
+
+/* Table styles */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+thead {
+    background-color: #3498db;
+    color: white;
+}
+
+th, td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Buttons container */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Buttons */
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+button.add {
+    background-color: #27ae60;
+    color: white;
+}
+
+button.add:hover {
+    background-color: #219150;
+}
+
+button.logout {
+    background-color: #e74c3c;
+    color: white;
+}
+
+button.logout:hover {
+    background-color: #c0392b;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px;
+    }
+
+    table, thead, tbody, th, td, tr {
+        display: block;
+        width: 100%;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tr {
+        margin-bottom: 15px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+    }
+
+    td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        width: 45%;
+        text-align: left;
+        font-weight: bold;
+    }
+}
