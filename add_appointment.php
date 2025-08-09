@@ -22,33 +22,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $price = $area * 5;
 
     if ($name && $surname && $telephone && $area > 0 && $appointment_time) {
+        
         // Extract date part from appointment_time (YYYY-MM-DD)
         $appointmentDate = date('Y-m-d', strtotime($appointment_time));
 
-        // Check if any appointment exists on the same day
-        $checkStmt = $conn->prepare("SELECT COUNT(*) FROM appointments WHERE DATE(appointment_time) = ?");
-        $checkStmt->bind_param("s", $appointmentDate);
-        $checkStmt->execute();
-        $checkStmt->bind_result($count);
-        $checkStmt->fetch();
-        $checkStmt->close();
+        // Get current date and time
+        $currentDateTime = date('Y-m-d H:i:s');
 
-        if ($count > 0) {
-            // Appointment exists on the same day
-            $errorMessage = "There is already an appointment on the same day.";
+        // 1️⃣ Check if appointment is in the past
+        if (strtotime($appointment_time) < strtotime($currentDateTime)) {
+            $errorMessage = "You cannot set an appointment in the past.";
         } else {
-            // No appointment on the same day, insert new appointment
-            $stmt = $conn->prepare("INSERT INTO appointments (user_id, name, surname, telephone, area, price, appointment_time) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt->bind_param("issssds", $userId, $name, $surname, $telephone, $area, $price, $appointment_time);
+            // 2️⃣ Check if any appointment exists on the same day
+            $checkStmt = $conn->prepare("SELECT COUNT(*) FROM appointments WHERE DATE(appointment_time) = ?");
+            $checkStmt->bind_param("s", $appointmentDate);
+            $checkStmt->execute();
+            $checkStmt->bind_result($count);
+            $checkStmt->fetch();
+            $checkStmt->close();
 
-            if ($stmt->execute()) {
-                header("Location: appointments.php");
-                exit();
+            if ($count > 0) {
+                $errorMessage = "There is already an appointment on the same day.";
             } else {
-                $errorMessage = "Error: " . $stmt->error;
-            }
+                // 3️⃣ Insert new appointment
+                $stmt = $conn->prepare("INSERT INTO appointments (user_id, name, surname, telephone, area, price, appointment_time) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("issssds", $userId, $name, $surname, $telephone, $area, $price, $appointment_time);
 
-            $stmt->close();
+                if ($stmt->execute()) {
+                    header("Location: appointments.php");
+                    exit();
+                } else {
+                    $errorMessage = "Error: " . $stmt->error;
+                }
+
+                $stmt->close();
+            }
         }
     } else {
         $errorMessage = "Please fill in all required fields correctly.";
@@ -68,11 +76,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             const price = area > 0 ? area * 5 : 0;
             document.getElementById('priceDisplay').textContent = 'Calculated Price: $' + price.toFixed(2);
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const telephoneInput = document.getElementById('telephone');
+            const areaInput = document.getElementById('area');
+
+            // Telephone: Only digits
+            telephoneInput.addEventListener('input', function () {
+                if (/[^0-9]/.test(this.value)) {
+                    alert("Only numbers are allowed in telephone!");
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                }
+            });
+
+            // Area: Only numbers + one decimal
+            areaInput.addEventListener('input', function () {
+                if (/[^0-9.]/.test(this.value) || (this.value.match(/\./g) || []).length > 1) {
+                    alert("Only numbers and one decimal point are allowed for area!");
+                    this.value = this.value.replace(/[^0-9.]/g, '');
+                    const parts = this.value.split('.');
+                    if (parts.length > 2) {
+                        this.value = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                }
+                updatePrice();
+            });
+        });
     </script>
 </head>
 <body>
-
-
 
 <?php if ($errorMessage): ?>
     <p class="message" style="color:red; text-align:center;"><?= $errorMessage ?></p>
@@ -80,6 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <form method="post">
     <h2 style="text-align: center;">Add Appointment</h2>
+    
     <label>Name:</label>
     <input type="text" name="name" required>
 
@@ -87,11 +120,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <input type="text" name="surname" required>
 
     <label>Telephone:</label>
-    <input type="text" name="telephone" required>
+    <input type="text" name="telephone" id="telephone" required>
 
     <label>Area (in m²):</label>
-    <input type="number" step="0.1" min="0" name="area" id="area" required oninput="updatePrice()">
-
+    <input type="text" name="area" id="area" required>
     <p id="priceDisplay">Calculated Price: $0.00</p>
 
     <label>Appointment Time:</label>
@@ -99,11 +131,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <button type="submit">Save Appointment</button><br><br>
     <div style="text-align:center;">
-    <a href="appointments.php">← Back to Appointments</a>
-</div>
+        <a href="appointments.php">← Back to Appointments</a>
+    </div>
 </form>
-
-
 
 </body>
 </html>
