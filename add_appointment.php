@@ -11,6 +11,7 @@ if (!isset($_SESSION['id'])) {
 $successMessage = "";
 $errorMessage = "";
 
+// Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = htmlspecialchars(trim($_POST['name']));
     $surname = htmlspecialchars(trim($_POST['surname']));
@@ -49,13 +50,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bind_param("issssds", $userId, $name, $surname, $telephone, $area, $price, $appointment_time);
 
                 if ($stmt->execute()) {
+                    $stmt->close();
+                    $conn->close();
                     header("Location: appointments.php");
                     exit();
                 } else {
                     $errorMessage = "Error: " . $stmt->error;
+                    $stmt->close();
                 }
-
-                $stmt->close();
             }
         }
     } else {
@@ -63,7 +65,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -83,21 +84,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             // Telephone: Only digits
             telephoneInput.addEventListener('input', function () {
-                if (/[^0-9]/.test(this.value)) {
-                    alert("Only numbers are allowed in telephone!");
-                    this.value = this.value.replace(/[^0-9]/g, '');
-                }
+                this.value = this.value.replace(/[^0-9]/g, '');
             });
 
             // Area: Only numbers + one decimal
             areaInput.addEventListener('input', function () {
-                if (/[^0-9.]/.test(this.value) || (this.value.match(/\./g) || []).length > 1) {
-                    alert("Only numbers and one decimal point are allowed for area!");
-                    this.value = this.value.replace(/[^0-9.]/g, '');
-                    const parts = this.value.split('.');
-                    if (parts.length > 2) {
-                        this.value = parts[0] + '.' + parts.slice(1).join('');
-                    }
+                this.value = this.value.replace(/[^0-9.]/g, '');
+                const parts = this.value.split('.');
+                if (parts.length > 2) {
+                    this.value = parts[0] + '.' + parts.slice(1).join('');
                 }
                 updatePrice();
             });
@@ -106,36 +101,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </head>
 <body>
 
-<?php if ($errorMessage): ?>
-    <p class="message" style="color:red; text-align:center;"><?= $errorMessage ?></p>
-<?php endif; ?>
+<div class="form-container">
+    <?php if ($errorMessage): ?>
+        <p class="message" style="color:red; text-align:center;"><?= $errorMessage ?></p>
+    <?php endif; ?>
 
-<form method="post">
-    <h2 style="text-align: center;">Add Appointment</h2>
-    
-    <label>Name:</label>
-    <input type="text" name="name" required>
+    <form method="post">
+        <h2 style="text-align: center;">Add Appointment</h2>
+        
+        <label>Name:</label>
+        <input type="text" name="name" required>
 
-    <label>Surname:</label>
-    <input type="text" name="surname" required>
+        <label>Surname:</label>
+        <input type="text" name="surname" required>
 
-    <label>Telephone:</label>
-    <input type="text" name="telephone" id="telephone" required>
+        <label>Telephone:</label>
+        <input type="text" name="telephone" id="telephone" required>
 
-    <label>Area (in m²):</label>
-    <input type="text" name="area" id="area" required>
-    <p id="priceDisplay">Calculated Price: $0.00</p>
+        <label>Area (in m²):</label>
+        <input type="text" name="area" id="area" required>
+        <p id="priceDisplay">Calculated Price: $0.00</p>
 
-    <label>Appointment Time:</label>
-    <input type="datetime-local" name="appointment_time" required>
+        <label>Appointment Time:</label>
+        <input type="datetime-local" name="appointment_time" required>
 
-    <button type="submit">Save Appointment</button><br><br>
-    <div style="text-align:center;">
-        <a href="appointments.php">← Back to Appointments</a>
-    </div>
-</form>
+        <button type="submit">Save Appointment</button><br><br>
+        <div style="text-align:center;">
+            <a href="appointments.php">← Back to Appointments</a>
+        </div>
+    </form>
+</div>
 
 </body>
 </html>
-
 <?php $conn->close(); ?>
