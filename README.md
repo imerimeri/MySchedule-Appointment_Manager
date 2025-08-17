@@ -21,7 +21,9 @@ It allows businesses to quickly **add**, **edit**, and **track** scheduled jobs 
       <img width="1440" height="900" alt="Screenshot 2025-08-09 at 15 20 44" src="https://github.com/user-attachments/assets/9bdc0057-eda4-4a5b-8627-f029f7a03c68" />
 
    - If you don’t have an account → register first.  
-    <img width="1440" height="900" alt="Screenshot 2025-08-09 at 15 25 34" src="https://github.com/user-attachments/assets/e809c9a4-3a40-4d0b-9729-19573c0d9db8" />
+    <img width="1440" height="900" alt="Screenshot 2025-08-17 at 18 01 02" src="https://github.com/user-attachments/assets/0cc3c56e-98ef-49af-a595-494aaa0e04bc" />
+
+
 
 
 2. **Registration**  
